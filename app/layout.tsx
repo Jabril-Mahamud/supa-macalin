@@ -37,6 +37,7 @@ export default function RootLayout({
                   <div className="flex gap-5 items-center font-semibold">
                     <Link href={"/"}>Next.js Supabase Starter</Link>
                     <div className="flex items-center gap-2">
+                      <HeaderAuth/>
                     </div>
                   </div>
                 </div>
