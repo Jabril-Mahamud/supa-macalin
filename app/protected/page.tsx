@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { InfoIcon } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function ProtectedPage() {
@@ -13,23 +14,41 @@ export default async function ProtectedPage() {
     return redirect("/sign-in");
   }
 
+  const userInfo = {
+    fullName: user.user_metadata?.full_name || "Not provided",
+    email: user.email || "Not provided",
+    createdAt: user.created_at || "Not provided",
+  };
+
   return (
-    <div className="flex-1 w-full flex flex-col gap-12">
-      <div className="w-full">
-        <div className="bg-accent text-sm p-3 px-5 rounded-md text-foreground flex gap-3 items-center">
-          <InfoIcon size="16" strokeWidth={2} />
-          This is a protected page that you can only see as an authenticated
-          user
-        </div>
+    <div className="flex-1 w-full flex flex-col gap-6 p-4 bg-background">
+      {/* Navigation Tabs */}
+      <div className="flex space-x-4 mb-4">
+        <Link href="/speaker">
+          <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            Speaker
+          </button>
+        </Link>
+        <Link href="/history">
+          <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            History
+          </button>
+        </Link>
       </div>
-      <div className="flex flex-col gap-2 items-start">
-        <h2 className="font-bold text-2xl mb-4">Your user details</h2>
-        <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
-          {JSON.stringify(user, null, 2)}
-        </pre>
-      </div>
-      <div>
-        <h2 className="font-bold text-2xl mb-4">Next steps</h2>
+
+      <h2 className="font-bold text-xl text-foreground">Your Information</h2>
+
+      <div className="bg-muted p-4 rounded border border-muted-foreground">
+        <p className="text-sm font-medium">Full Name:</p>
+        <p className="text-lg font-mono text-foreground">{userInfo.fullName}</p>
+
+        <p className="text-sm font-medium mt-2">Email:</p>
+        <p className="text-lg font-mono text-foreground">{userInfo.email}</p>
+
+        <p className="text-sm font-medium mt-2">Account Created On:</p>
+        <p className="text-lg font-mono text-foreground">
+          {new Date(userInfo.createdAt).toLocaleDateString() || "Not provided"}
+        </p>
       </div>
     </div>
   );
