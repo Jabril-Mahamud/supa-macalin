@@ -7,8 +7,8 @@ import { LoadingButton } from '@/components/LoadingButton';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Volume2 } from 'lucide-react';
-import oswaldImage from "../app/images/oswald.png"; 
-import dorothyImage from "../app/images/dorothy.png";
+import oswaldImage from "@/app/images/oswald.png";
+import dorothyImage from "@/app/images/dorothy.png";
 
 interface Voice {
   name: string;
