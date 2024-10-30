@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import Image, { StaticImageData } from 'next/image';
@@ -41,7 +41,7 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>(VOICE_OPTIONS[0].id);
-
+  const [isPlaying, setIsPlaying] = useState<boolean>(false); // State to track playback
   const { toast } = useToast();
 
   useEffect(() => {
@@ -60,83 +60,106 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
     }
   }, [maxLength]);
 
-  // Inside your AudioConverter component
-const saveMessage = async (text: string, audio_url: string, voice: string) => {
-  try {
-    await fetch("/api/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        text,
-        audio_url,
-        voice,
-      }),
-    });
-  } catch (err) {
-    console.error("Error saving message:", err);
-  }
-};
+  const saveMessage = async (text: string, audio_url: string, voice: string) => {
+    try {
+      await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text,
+          audio_url,
+          voice,
+        }),
+      });
+    } catch (err) {
+      console.error("Error saving message:", err);
+    }
+  };
 
-const handleSubmit = useCallback(async () => {
-  if (!text.trim()) {
-    toast({
-      description: 'Please add some text first',
-      variant: 'default',
-    });
-    return;
-  }
+  const handleSubmit = useCallback(async () => {
+    if (!text.trim()) {
+      toast({
+        description: 'Please add some text first',
+        variant: 'default',
+      });
+      return;
+    }
 
-  setIsLoading(true);
-  let newAudioUrl: string | null = null;
+    setIsLoading(true);
+    let newAudioUrl: string | null = null;
 
-  try {
+    try {
+      if (audioSrc) {
+        URL.revokeObjectURL(audioSrc);
+      }
+
+      const response = await fetch('/api/text-to-speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: text.trim(),
+          selectedVoiceId,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate audio');
+      }
+
+      const audioData = await response.arrayBuffer();
+      const blob = new Blob([audioData], { type: 'audio/mpeg' });
+      newAudioUrl = URL.createObjectURL(blob);
+      setAudioSrc(newAudioUrl);
+
+      const selectedVoice = VOICE_OPTIONS.find(voice => voice.id === selectedVoiceId)?.name || 'Unknown';
+      await saveMessage(text, newAudioUrl, selectedVoice);
+
+      toast({
+        description: '🎉 Your audio is ready! 🎉',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error generating audio:', error);
+      toast({
+        description: 'Sorry, please try again',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [text, audioSrc, selectedVoiceId, toast]);
+
+  const handleVoiceChange = (voiceId: string) => {
+    setSelectedVoiceId(voiceId);
+    setAudioSrc(null); // Reset audio when voice changes
+  };
+
+  const handlePlayAudio = () => {
     if (audioSrc) {
-      URL.revokeObjectURL(audioSrc);
+      const audio = new Audio(audioSrc);
+      setIsPlaying(true); // Set playing status
+      audio.play()
+        .then(() => {
+          audio.onended = () => {
+            setIsPlaying(false); // Reset playing status when audio ends
+          };
+        })
+        .catch(err => {
+          toast({
+            description: 'Could not play audio. Please try again.',
+            variant: 'destructive',
+          });
+          setIsPlaying(false); // Reset playing status on error
+        });
+    } else {
+      handleSubmit();
     }
-
-    const response = await fetch('/api/text-to-speech', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text: text.trim(),
-        selectedVoiceId,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to generate audio');
-    }
-
-    const audioData = await response.arrayBuffer();
-    const blob = new Blob([audioData], { type: 'audio/mpeg' });
-    newAudioUrl = URL.createObjectURL(blob);
-    setAudioSrc(newAudioUrl);
-
-    const selectedVoice = VOICE_OPTIONS.find(voice => voice.id === selectedVoiceId)?.name || 'Unknown';
-    
-    // Call saveMessage to store message in database
-    await saveMessage(text, newAudioUrl, selectedVoice);
-
-    toast({
-      description: '🎉 Your audio is ready! 🎉',
-      duration: 3000,
-    });
-  } catch (error) {
-    console.error('Error generating audio:', error);
-    toast({
-      description: 'Sorry, please try again',
-      variant: 'destructive',
-    });
-  } finally {
-    setIsLoading(false);
-  }
-}, [text, audioSrc, selectedVoiceId, toast]);
-
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg rounded-lg bg-background text-foreground">
@@ -174,7 +197,7 @@ const handleSubmit = useCallback(async () => {
             {VOICE_OPTIONS.map((voice) => (
               <button
                 key={voice.id}
-                onClick={() => setSelectedVoiceId(voice.id)}
+                onClick={() => handleVoiceChange(voice.id)}
                 className={`p-4 rounded-lg transition-all flex flex-col items-center space-y-2 text-lg font-semibold
                   ${selectedVoiceId === voice.id
                     ? 'bg-blue-500 border-2 border-blue-700 text-white shadow-md scale-105'
@@ -200,32 +223,17 @@ const handleSubmit = useCallback(async () => {
         </div>
 
         <LoadingButton
-          onClick={handleSubmit}
+          onClick={handlePlayAudio} // Unified action for play/speak
           isLoading={isLoading}
           disabled={!text.trim()}
           className="w-full h-12 text-lg font-medium rounded-lg bg-blue-500 text-white hover:bg-blue-600"
         >
-          {isLoading ? 'Converting...' : 'Speak It!'}
+          {audioSrc ? 'Play Audio' : 'Speak It!'} {/* Dynamic button text */}
         </LoadingButton>
 
-        {audioSrc && (
-          <div className="rounded-lg border bg-green-50 p-6 shadow">
-            <audio
-              controls
-              src={audioSrc}
-              className="w-full rounded-lg"
-              onError={() => {
-                toast({
-                  description: 'Could not play audio. Please try again.',
-                  variant: 'destructive',
-                });
-                setAudioSrc(null);
-              }}
-            >
-              Your browser does not support audio playback.
-            </audio>
-          </div>
-        )}
+        {/* Status Indicator for Playback */}
+        {isPlaying && <p className="mt-4 text-center text-green-600">Playing audio...</p>}
+        {!isPlaying && audioSrc && <p className="mt-4 text-center text-gray-600">Audio finished playing.</p>}
       </CardContent>
     </Card>
   );
