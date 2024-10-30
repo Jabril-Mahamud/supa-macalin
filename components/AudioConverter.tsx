@@ -60,58 +60,83 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
     }
   }, [maxLength]);
 
-  const handleSubmit = useCallback(async () => {
-    if (!text.trim()) {
-      toast({
-        description: 'Please add some text first',
-        variant: 'default',
-      });
-      return;
+  // Inside your AudioConverter component
+const saveMessage = async (text: string, audio_url: string, voice: string) => {
+  try {
+    await fetch("/api/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text,
+        audio_url,
+        voice,
+      }),
+    });
+  } catch (err) {
+    console.error("Error saving message:", err);
+  }
+};
+
+const handleSubmit = useCallback(async () => {
+  if (!text.trim()) {
+    toast({
+      description: 'Please add some text first',
+      variant: 'default',
+    });
+    return;
+  }
+
+  setIsLoading(true);
+  let newAudioUrl: string | null = null;
+
+  try {
+    if (audioSrc) {
+      URL.revokeObjectURL(audioSrc);
     }
 
-    setIsLoading(true);
-    let newAudioUrl: string | null = null;
+    const response = await fetch('/api/text-to-speech', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: text.trim(),
+        selectedVoiceId,
+      }),
+    });
 
-    try {
-      if (audioSrc) {
-        URL.revokeObjectURL(audioSrc);
-      }
-
-      const response = await fetch('/api/text-to-speech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: text.trim(),
-          selectedVoiceId,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to generate audio');
-      }
-
-      const audioData = await response.arrayBuffer();
-      const blob = new Blob([audioData], { type: 'audio/mpeg' });
-      newAudioUrl = URL.createObjectURL(blob);
-      setAudioSrc(newAudioUrl);
-
-      toast({
-        description: '🎉 Your audio is ready! 🎉',
-        duration: 3000,
-      });
-    } catch (error) {
-      console.error('Error generating audio:', error);
-      toast({
-        description: 'Sorry, please try again',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to generate audio');
     }
-  }, [text, audioSrc, selectedVoiceId, toast]);
+
+    const audioData = await response.arrayBuffer();
+    const blob = new Blob([audioData], { type: 'audio/mpeg' });
+    newAudioUrl = URL.createObjectURL(blob);
+    setAudioSrc(newAudioUrl);
+
+    const selectedVoice = VOICE_OPTIONS.find(voice => voice.id === selectedVoiceId)?.name || 'Unknown';
+    
+    // Call saveMessage to store message in database
+    await saveMessage(text, newAudioUrl, selectedVoice);
+
+    toast({
+      description: '🎉 Your audio is ready! 🎉',
+      duration: 3000,
+    });
+  } catch (error) {
+    console.error('Error generating audio:', error);
+    toast({
+      description: 'Sorry, please try again',
+      variant: 'destructive',
+    });
+  } finally {
+    setIsLoading(false);
+  }
+}, [text, audioSrc, selectedVoiceId, toast]);
+
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg rounded-lg bg-background text-foreground">
