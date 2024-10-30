@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import oswaldImage from "@/app/images/oswald.png";
-import dorothyImage from "@/app/images/dorothy.png";
+import oswaldImage from "../app/public/images/oswald.png";
+import dorothyImage from "../app/public/images/dorothy.png";
 import type { StaticImageData } from "next/image"; // Import StaticImageData
 
 interface Message {
