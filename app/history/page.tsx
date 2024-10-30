@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import oswaldImage from "@/app/images/oswald.png"; // Adjust path as necessary
-import dorothyImage from "@/app/images/dorothy.png"; // Adjust path as necessary
-import type { StaticImageData } from "next/image"; // Import StaticImageData
+import oswaldImage from "../images/oswald.png"; 
+import dorothyImage from "../images/dorothy.png";
+import type { StaticImageData } from "next/image"; 
 
 interface Message {
   id: number;

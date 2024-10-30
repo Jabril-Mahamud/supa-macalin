@@ -7,8 +7,8 @@ import { LoadingButton } from '@/components/LoadingButton';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Volume2 } from 'lucide-react';
-import OswaldIcon from "@/app/images/Oswald.png";
-import DorothyIcon from "@/app/images/Dorothy.png";
+import oswaldImage from "../app/images/oswald.png"; 
+import dorothyImage from "../app/images/dorothy.png";
 
 interface Voice {
   name: string;
@@ -25,13 +25,13 @@ const VOICE_OPTIONS: Voice[] = [
   {
     name: 'Oswald',
     id: 'Pw7NjARk1Tw61eca5OiP',
-    icon: OswaldIcon,
+    icon: oswaldImage,
     description: 'A friendly male voice that speaks clearly',
   },
   {
     name: 'Dorothy',
     id: 'ThT5KcBeYPX3keUQqHPh',
-    icon: DorothyIcon,
+    icon: dorothyImage,
     description: 'A warm female voice that speaks gently',
   },
 ];
