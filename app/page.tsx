@@ -1,5 +1,5 @@
 import Hero from "@/components/hero";
-
+//cleared cache hopefully it works
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import Link from "next/link";
 
