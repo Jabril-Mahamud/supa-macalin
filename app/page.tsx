@@ -1,21 +1,15 @@
-import Hero from "@/components/hero"; // Import the Hero component
-import Link from "next/link"; // Import the Link component for navigation
+import Hero from "@/components/hero";
+import Link from "next/link";
 
 export default function Index() {
   return (
     <>
-      <Hero /> {/* Render the Hero component */}
+      <Hero /> {}
       
-      <div className="flex flex-col items-center mt-8">
-        <h2 className="text-2xl font-semibold mb-4">Getting Started</h2>
+      <div className="flex flex-col items-center mt-6"> {}
+        <h2 className="text-2xl font-semibold mb-4 text-blue-600">Get Started</h2>
         <p className="text-lg text-center mb-6">
-          Let’s begin! Click the button below to try the{" "}
-          <span className="font-bold text-blue-600">Speaker</span>{" "}
-          feature, which helps you{" "}
-          <span className="underline hover:text-blue-600 transition duration-300">speak</span>{" "}
-          and{" "}
-          <span className="underline hover:text-blue-600 transition duration-300">share your thoughts</span>{" "}
-          easily.
+          Try the <span className="font-bold text-blue-600">Speaker</span> feature to talk and share.
         </p>
         <div className="flex gap-4">
           <Link 
