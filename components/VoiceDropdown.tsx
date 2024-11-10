@@ -12,9 +12,9 @@ async function updateUserVoicePreference(userId: string, voiceId: string) {
       const response = await fetch('/api/voice-preference', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',  // Ensure JSON content type
+          'Content-Type': 'application/json', 
         },
-        body: JSON.stringify({ userId, voiceId }),  // Send the data as JSON
+        body: JSON.stringify({ userId, voiceId }),  
       });
   
       const data = await response.json();
@@ -37,7 +37,7 @@ export default function VoiceDropdown({ userId }: { userId: string }) {
   // Fetch voices from your backend API
   useEffect(() => {
     async function fetchVoices() {
-      const res = await fetch('/api/voices');  // Fetch voices from the backend
+      const res = await fetch('/api/voices'); 
       const data = await res.json();
       if (data.voices) {
         setVoices(data.voices);
@@ -54,7 +54,7 @@ export default function VoiceDropdown({ userId }: { userId: string }) {
   const handleVoiceChange = (voiceId: string) => {
     setSelectedVoice(voiceId);
     if (userId) {
-      updateUserVoicePreference(userId, voiceId);  // Send preference to the backend
+      updateUserVoicePreference(userId, voiceId);
     }
   };
 

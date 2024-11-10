@@ -4,9 +4,9 @@ import Link from "next/link";
 export default function Index() {
   return (
     <>
-      <Hero /> {/* Render the Hero component */}
+      <Hero /> {}
       
-      <div className="flex flex-col items-center mt-6"> {/* Reduced the margin-top */}
+      <div className="flex flex-col items-center mt-6"> {}
         <h2 className="text-2xl font-semibold mb-4 text-blue-600">Get Started</h2>
         <p className="text-lg text-center mb-6">
           Try the <span className="font-bold text-blue-600">Speaker</span> feature to talk and share.
