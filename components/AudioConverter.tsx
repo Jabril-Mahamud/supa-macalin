@@ -41,7 +41,8 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>(VOICE_OPTIONS[0].id);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false); // State to track playback
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [audioContext, setAudioContext] = useState<{ text: string, voiceId: string } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -57,8 +58,13 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
     const newText = e.target.value;
     if (newText.length <= maxLength) {
       setText(newText);
+      // Reset audio if text changes
+      if (audioSrc && audioContext?.text !== newText) {
+        setAudioSrc(null);
+        setAudioContext(null);
+      }
     }
-  }, [maxLength]);
+  }, [maxLength, audioSrc, audioContext]);
 
   const saveMessage = async (text: string, audio_url: string, voice: string) => {
     try {
@@ -115,6 +121,10 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
       const blob = new Blob([audioData], { type: 'audio/mpeg' });
       newAudioUrl = URL.createObjectURL(blob);
       setAudioSrc(newAudioUrl);
+      setAudioContext({
+        text: text.trim(),
+        voiceId: selectedVoiceId
+      });
 
       const selectedVoice = VOICE_OPTIONS.find(voice => voice.id === selectedVoiceId)?.name || 'Unknown';
       await saveMessage(text, newAudioUrl, selectedVoice);
@@ -136,17 +146,31 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
 
   const handleVoiceChange = (voiceId: string) => {
     setSelectedVoiceId(voiceId);
-    setAudioSrc(null); // Reset audio when voice changes
+    // Reset audio when voice changes
+    if (audioSrc) {
+      URL.revokeObjectURL(audioSrc);
+      setAudioSrc(null);
+      setAudioContext(null);
+      setIsPlaying(false);
+    }
   };
 
   const handlePlayAudio = () => {
-    if (audioSrc) {
+    // Check if we need to generate new audio
+    const needsNewAudio = !audioSrc || 
+                         !audioContext || 
+                         audioContext.text !== text.trim() || 
+                         audioContext.voiceId !== selectedVoiceId;
+
+    if (needsNewAudio) {
+      handleSubmit();
+    } else if (audioSrc) {
       const audio = new Audio(audioSrc);
-      setIsPlaying(true); // Set playing status
+      setIsPlaying(true);
       audio.play()
         .then(() => {
           audio.onended = () => {
-            setIsPlaying(false); // Reset playing status when audio ends
+            setIsPlaying(false);
           };
         })
         .catch(err => {
@@ -154,10 +178,8 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
             description: 'Could not play audio. Please try again.',
             variant: 'destructive',
           });
-          setIsPlaying(false); // Reset playing status on error
+          setIsPlaying(false);
         });
-    } else {
-      handleSubmit();
     }
   };
 
@@ -208,7 +230,7 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
               >
                 <Image
                   src={voice.icon}
-                  alt={`${voice.name} voice icon`} // Improved alt text for accessibility
+                  alt={`${voice.name} voice icon`}
                   width={64}
                   height={64}
                   className="rounded-full"
@@ -223,15 +245,16 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
         </div>
 
         <LoadingButton
-          onClick={handlePlayAudio} // Unified action for play/speak
+          onClick={handlePlayAudio}
           isLoading={isLoading}
           disabled={!text.trim()}
           className="w-full h-12 text-lg font-medium rounded-lg bg-blue-500 text-white hover:bg-blue-600"
         >
-          {audioSrc ? 'Play Audio' : 'Speak It!'} {/* Dynamic button text */}
+          {audioSrc && audioContext?.text === text.trim() && audioContext?.voiceId === selectedVoiceId 
+            ? 'Play Audio' 
+            : 'Speak It!'}
         </LoadingButton>
 
-        {/* Status Indicator for Playback */}
         {isPlaying && <p className="mt-4 text-center text-green-600">Playing audio...</p>}
         {!isPlaying && audioSrc && <p className="mt-4 text-center text-gray-600">Audio finished playing.</p>}
       </CardContent>
