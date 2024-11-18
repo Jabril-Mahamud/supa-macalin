@@ -1,7 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import VoiceDropdown from "@/components/VoiceDropdown"; 
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -51,8 +50,7 @@ export default async function ProtectedPage() {
         </p>
       </div>
 
-      {/* Voice Selection Dropdown */}
-      <VoiceDropdown userId={user.id} />
+      
     </div>
   );
 }
