@@ -30,10 +30,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className="min-h-screen flex flex-col">
+          <main className="min-h-screen flex flex-col items-center justify-center">
             {/* Header/Nav */}
             <nav className="w-full border-b border-b-foreground/10 h-16">
-              <div className="w-full flex justify-between items-center p-3 px-5 text-sm max-w-[90%] mx-auto">
+              <div className="w-full flex justify-between items-center p-3 px-5 text-sm max-w-[80%] mx-auto">
                 <div className="flex gap-5 items-center font-semibold">
                   <Link href={"/"}>Next.js Supabase Starter</Link>
                 </div>
@@ -42,13 +42,13 @@ export default function RootLayout({
             </nav>
 
             {/* Main Content */}
-            <div className="flex-grow w-full p-5 max-w-[90%] mx-auto">
+            <div className="flex-grow w-full p-5 max-w-[80%] mx-auto flex flex-col items-center justify-center">
               {children}
             </div>
 
             {/* Footer */}
-            <footer className="w-full border-t mx-auto text-center text-xs gap-8 py-8">
-              <div className="flex justify-between items-center max-w-[90%] mx-auto">
+            <footer className="w-full border-t mx-auto text-center text-xs py-8">
+              <div className="flex flex-col items-center gap-4 max-w-[80%] mx-auto">
                 <p>
                   Powered by{" "}
                   <a
