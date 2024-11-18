@@ -30,25 +30,23 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className="min-h-screen flex flex-col items-center justify-center">
-            {/* Header/Nav */}
-            <nav className="w-full border-b border-b-foreground/10 h-16">
-              <div className="w-full flex justify-between items-center p-3 px-5 text-sm max-w-[80%] mx-auto">
-                <div className="flex gap-5 items-center font-semibold">
-                  <Link href={"/"}>Next.js Supabase Starter</Link>
+          <main className="min-h-screen flex flex-col items-center">
+            <div className="flex-1 w-full flex flex-col gap-20 items-center">
+              <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
+                <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
+                  <div className="flex gap-5 items-center font-semibold">
+                    <Link href={"/"}>Next.js Supabase Starter</Link>
+                    <div className="flex items-center gap-2">
+                    </div>
+                  </div>
+                  { <HeaderAuth />}
                 </div>
-                <HeaderAuth />
+              </nav>
+              <div className="flex flex-col gap-20 max-w-5xl p-5">
+                {children}
               </div>
-            </nav>
 
-            {/* Main Content */}
-            <div className="flex-grow w-full p-5 max-w-[80%] mx-auto flex flex-col items-center justify-center">
-              {children}
-            </div>
-
-            {/* Footer */}
-            <footer className="w-full border-t mx-auto text-center text-xs py-8">
-              <div className="flex flex-col items-center gap-4 max-w-[80%] mx-auto">
+              <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
                 <p>
                   Powered by{" "}
                   <a
@@ -59,10 +57,11 @@ export default function RootLayout({
                   >
                     Supabase
                   </a>
+                  
                 </p>
                 <ThemeSwitcher />
-              </div>
-            </footer>
+              </footer>
+            </div>
           </main>
         </ThemeProvider>
       </body>
