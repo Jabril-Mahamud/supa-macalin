@@ -1,10 +1,17 @@
-
-// Main Page Component
+'use client'
 import { AudioConverter } from "@/components/AudioConverter";
 import MessageHistory from "@/components/MessageHistory";
 import React from "react";
+import { useRouter } from "next/navigation";
+import { Clock } from "lucide-react"; // Importing Clock icon from Lucide React
 
 const Page = () => {
+  const navigate = useRouter();
+
+  const handleNavigateToHistory = () => {
+    navigate.push("/history");
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-start bg-gray-50 p-6 pt-12 space-y-8">
       <div className="text-center">
@@ -19,6 +26,19 @@ const Page = () => {
       <div className="w-full max-w-lg">
         <MessageHistory />
       </div>
+
+      {/* History Button */}
+      <button
+        onClick={handleNavigateToHistory}
+        className="flex items-center justify-center space-x-2 bg-blue-600 text-white text-lg font-medium px-6 py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+        aria-label="Go to history page"
+        title="View your history"
+      >
+        {/* Lucide Clock Icon */}
+        <Clock className="h-6 w-6" />
+        {/* Text */}
+        <span>History</span>
+      </button>
     </div>
   );
 };
