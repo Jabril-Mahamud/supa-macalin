@@ -37,7 +37,7 @@ const Page = () => {
         {/* Lucide Clock Icon */}
         <Clock className="h-6 w-6" />
         {/* Text */}
-        <span>History</span>
+        <span>View all History</span>
       </button>
     </div>
   );
